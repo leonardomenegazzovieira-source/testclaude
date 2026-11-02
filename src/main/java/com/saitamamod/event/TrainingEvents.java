@@ -12,7 +12,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingSwingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -45,6 +44,7 @@ public final class TrainingEvents {
         boolean sneak = p.isShiftKeyDown();
 
         if (!SaitamaData.isSaitama(p)) {
+            checkPushup(p, s);
             // agachamento completo: agachou e levantou
             if (s.sneaking && !sneak && p.onGround() && p.tickCount - s.lastSquat >= 8) {
                 s.lastSquat = p.tickCount;
@@ -71,16 +71,11 @@ public final class TrainingEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onSwing(LivingSwingEvent e) {
-        if (!(e.getEntity() instanceof ServerPlayer p) || SaitamaData.isSaitama(p)) {
+    /** Flexão = soco no ar: o braço começou a balançar e não há bloco na frente. */
+    private static void checkPushup(ServerPlayer p, State s) {
+        if (!p.swinging || p.swingTime != 0 || p.tickCount - s.lastSwing < 8) {
             return;
         }
-        State s = STATES.computeIfAbsent(p.getUUID(), k -> new State());
-        if (p.tickCount - s.lastSwing < 8) {
-            return;
-        }
-        // flexão = soco no ar (sem bloco na frente)
         if (p.pick(5.0D, 1.0F, false).getType() == HitResult.Type.MISS) {
             s.lastSwing = p.tickCount;
             count(p, SaitamaData.PUSHUPS, 1, SaitamaConfig.PUSHUPS.get(), 10, "Flexões", "");
