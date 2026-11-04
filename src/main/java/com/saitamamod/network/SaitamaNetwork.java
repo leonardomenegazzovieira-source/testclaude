@@ -19,5 +19,7 @@ public final class SaitamaNetwork {
     public static void register() {
         CHANNEL.registerMessage(0, PowerPacket.class,
                 PowerPacket::encode, PowerPacket::decode, PowerPacket::handle);
+        CHANNEL.registerMessage(1, ShakePacket.class,
+                ShakePacket::encode, ShakePacket::decode, ShakePacket::handle);
     }
 }

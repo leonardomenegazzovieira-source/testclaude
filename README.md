@@ -39,3 +39,21 @@ Passivos: invencível (exceto /kill e void), super velocidade e pulo, quebra qua
 - O Soco Planetário destrói o mundo de verdade (bedrock fica). **Faça backup do mundo.**
 - A onda só apaga chunks carregados; o alcance real depende da render distance.
 - Num servidor, `hurtOtherPlayers = false` impede que os socos matem outros jogadores.
+
+## Compilar sem instalar nada (GitHub Actions)
+1. Crie um repositório vazio no github.com.
+2. Envie todos os arquivos desta pasta (incluindo a pasta `.github`) para ele: botão "Add file" > "Upload files".
+3. Abra a aba **Actions**, clique no workflow "Build mod" e espere terminar (alguns minutos).
+4. Dentro da execução, em **Artifacts**, baixe `saitamamod-jar`. Extraia o zip: o `.jar` está dentro.
+
+## Efeitos visuais
+- Carga: faíscas sendo sugadas, poeira e detritos do chão, tremor de tela crescendo.
+- Soco normal: explosão, fumaça e estrondo no alvo.
+- Soco Sério e Consecutivos: flash, onda de choque, fumaça, anéis de pressão e detritos pelo corredor.
+- Soco Planetário: parede de poeira e fumaça na frente da onda, terreno voando e tremor longo.
+- Se o jogo ficar pesado, reduza as partículas nas opções de vídeo (Particles: Decreased/Minimal).
+
+## Partículas próprias
+O mod traz 3 partículas com textura própria, em `assets/saitamamod/textures/particle`:
+`big_smoke` (fumaça grossa), `big_dust` (poeira de terra) e `glow` (clarão). Dá para trocar os PNGs por outros
+(mantendo os nomes `smoke_0` a `smoke_7` e `glow`) para mudar o visual.

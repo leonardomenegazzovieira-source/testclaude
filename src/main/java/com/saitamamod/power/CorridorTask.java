@@ -1,6 +1,7 @@
 package com.saitamamod.power;
 
 import com.saitamamod.SaitamaConfig;
+import com.saitamamod.vfx.VfxHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,9 +75,10 @@ public final class CorridorTask implements Task {
                     }
                     Vec3 w = c.add(u.scale(a)).add(v.scale(b));
                     pos.set(Mth.floor(w.x), Mth.floor(w.y), Mth.floor(w.z));
-                    PowerManager.erase(level, pos);
+                    PowerManager.erase(level, pos, 500);
                 }
             }
+            VfxHelper.slice(level, c, u, v, dir, radius, index);
             index++;
             done++;
         }

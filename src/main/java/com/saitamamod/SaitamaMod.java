@@ -12,6 +12,8 @@ public class SaitamaMod {
 
     public SaitamaMod() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SaitamaConfig.SPEC);
+        com.saitamamod.vfx.ModParticles.PARTICLES.register(
+                FMLJavaModLoadingContext.get().getModEventBus());
         FMLJavaModLoadingContext.get().getModEventBus()
                 .addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent e) ->
                         e.enqueueWork(SaitamaNetwork::register));

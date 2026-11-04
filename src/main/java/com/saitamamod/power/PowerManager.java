@@ -3,6 +3,7 @@ package com.saitamamod.power;
 import com.saitamamod.SaitamaConfig;
 import com.saitamamod.SaitamaData;
 import com.saitamamod.SaitamaMod;
+import com.saitamamod.vfx.VfxHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -87,9 +88,17 @@ public final class PowerManager {
 
     /** Remove um bloco (bedrock fica). Sem drops e sem atualizar vizinhos, para ser barato. */
     public static void erase(ServerLevel level, BlockPos pos) {
+        erase(level, pos, 0);
+    }
+
+    /** Igual ao erase, mas com 1 chance em debrisOneIn de soltar detritos do bloco (0 = nunca). */
+    public static void erase(ServerLevel level, BlockPos pos, int debrisOneIn) {
         BlockState st = level.getBlockState(pos);
         if (st.isAir() || st.is(Blocks.BEDROCK)) {
             return;
+        }
+        if (debrisOneIn > 0 && level.random.nextInt(debrisOneIn) == 0) {
+            VfxHelper.debris(level, st, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 2, 0.5);
         }
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2 | 16 | 32);
     }
@@ -155,6 +164,7 @@ public final class PowerManager {
                             SaitamaConfig.CONSECUTIVE_RADIUS.get(), SaitamaConfig.SLICES_PER_TICK.get() * 2);
                     p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
                     level.playSound(null, p.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 2.0F, 1.4F);
+                    VfxHelper.releaseBlast(level, p, 0.5F);
                     clearWeather(level);
                 }
                 if (a.ticksLeft <= 0) {
@@ -165,6 +175,11 @@ public final class PowerManager {
 
             // carga (sério e planetário): fica parado e solta faíscas
             p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 5, 6, false, false, false));
+            float progress = 1.0F - (float) a.ticksLeft / Math.max(1, a.total);
+            VfxHelper.chargeTick(level, p, progress);
+            if (a.ticksLeft % 4 == 0) {
+                VfxHelper.shake(level, p.getX(), p.getY(), p.getZ(), 48.0, 0.25F + progress, 6);
+            }
             if (a.ticksLeft % 2 == 0) {
                 level.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getY() + 1.0, p.getZ(),
                         12, 0.6, 0.9, 0.6, 0.2);
@@ -179,6 +194,7 @@ public final class PowerManager {
             // solta o soco
             p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
             level.playSound(null, p.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 4.0F, 0.5F);
+            VfxHelper.releaseBlast(level, p, a.power == PLANETARY ? 3.0F : 1.5F);
             clearWeather(level);
             if (a.power == SERIOUS) {
                 fireCorridor(p, SaitamaConfig.SERIOUS_LENGTH.get(), SaitamaConfig.SERIOUS_RADIUS.get(),

@@ -3,6 +3,7 @@ package com.saitamamod.event;
 import com.saitamamod.SaitamaConfig;
 import com.saitamamod.SaitamaData;
 import com.saitamamod.SaitamaMod;
+import com.saitamamod.vfx.VfxHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -66,6 +67,9 @@ public final class PowerEvents {
         }
         p.level().playSound(null, target.blockPosition(), SoundEvents.GENERIC_EXPLODE,
                 SoundSource.PLAYERS, 1.0F, 1.5F);
+        double ty = target.getY() + target.getBbHeight() / 2.0;
+        VfxHelper.hitImpact(p.serverLevel(), target.getX(), ty, target.getZ());
+        VfxHelper.shake(p.serverLevel(), target.getX(), ty, target.getZ(), 24.0, 0.8F, 6);
     }
 
     /** Quebra qualquer bloco instantaneamente. */

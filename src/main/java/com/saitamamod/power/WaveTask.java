@@ -1,6 +1,8 @@
 package com.saitamamod.power;
 
 import com.saitamamod.SaitamaConfig;
+import com.saitamamod.vfx.VfxHelper;
+import net.minecraft.world.level.block.state.BlockState;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -63,9 +65,22 @@ public final class WaveTask implements Task {
         if (!level.hasChunkAt(pos)) {
             return;
         }
+        BlockState top = null;
+        int topY = 0;
         for (int y = level.getMaxBuildHeight() - 1; y >= level.getMinBuildHeight(); y--) {
             pos.setY(y);
+            if (top == null) {
+                BlockState st = level.getBlockState(pos);
+                if (!st.isAir() && st.getFluidState().isEmpty()) {
+                    top = st;
+                    topY = y;
+                }
+            }
             PowerManager.erase(level, pos);
+        }
+        // pedaços do terreno saltando da superfície
+        if (top != null && level.random.nextInt(12) == 0) {
+            VfxHelper.debris(level, top, x + 0.5, topY + 1.0, z + 0.5, 3, 0.7);
         }
     }
 
@@ -105,12 +120,11 @@ public final class WaveTask implements Task {
             }
         }
 
-        if (age % 3 == 0 && ring > 0) {
-            for (int i = 0; i < 16; i++) {
-                double ang = i * (Math.PI * 2 / 16);
-                level.sendParticles(ParticleTypes.EXPLOSION, cx + Math.cos(ang) * ring, cy + 1.0,
-                        cz + Math.sin(ang) * ring, 1, 0, 0, 0, 0);
-            }
+        if (age % 2 == 0 && ring > 0) {
+            VfxHelper.waveFront(level, cx, cy, cz, Math.min(ring, maxRadius));
+        }
+        if (age % 20 == 1 && ring > 0) {
+            VfxHelper.shake(level, cx, cy, cz, maxRadius, 2.5F, 25);
         }
         if (age % 5 == 0) {
             killEntitiesInside(Math.min(ring, maxRadius));
